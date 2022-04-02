@@ -3,7 +3,7 @@
 // File: ./contracts/utils/math/SafeMath.sol
 // OpenZeppelin Contracts v4.4.1 (utils/math/SafeMath.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 // CAUTION
 // This version of SafeMath should only be used with Solidity 0.8 or later,
@@ -1026,6 +1026,8 @@ contract ERC721A is
 
   uint256 private currentIndex;
 
+  uint256 private mintedTokenNumbers = 0;
+
   uint256 public immutable collectionSize;
   uint256 public maxBatchSize;
 
@@ -1089,25 +1091,26 @@ contract ERC721A is
     return _totalMinted();
   }
 
-  function getNextTokenId() public view returns (uint256) {
-      return SafeMath.add(_totalMinted(), 1);
-  }
-
   /**
   * Returns the total amount of tokens minted in the contract.
   */
   function _totalMinted() internal view returns (uint256) {
-    unchecked {
-      return currentIndex - _startTokenId();
-    }
+    return mintedTokenNumbers;
   }
 
   /**
    * @dev See {IERC721Enumerable-tokenByIndex}.
    */
   function tokenByIndex(uint256 index) public view override returns (uint256) {
-    require(index < totalSupply(), "ERC721A: global index out of bounds");
-    return index;
+    require(index < collectionSize, "ERC721A: global index out of bounds");
+    if (_ownerships[index].addr != address(0)) {
+      return index;
+    }
+    revert("ERC721A: Token not minted");
+  }
+
+  function tokenByAddress(uint256 index) public view returns (address) {
+     return _ownerships[index].addr ;
   }
 
   /**
@@ -1121,21 +1124,10 @@ contract ERC721A is
     override
     returns (uint256)
   {
-    require(index < balanceOf(owner), "ERC721A: owner index out of bounds");
-    uint256 numMintedSoFar = totalSupply();
-    uint256 tokenIdsIdx = 0;
-    address currOwnershipAddr = address(0);
-    for (uint256 i = 0; i < numMintedSoFar; i++) {
-      TokenOwnership memory ownership = _ownerships[i];
-      if (ownership.addr != address(0)) {
-        currOwnershipAddr = ownership.addr;
-      }
-      if (currOwnershipAddr == owner) {
-        if (tokenIdsIdx == index) {
-          return i;
-        }
-        tokenIdsIdx++;
-      }
+    require(_addressData[owner].balance > 0, "ERC721A: owner index out of bounds");
+    TokenOwnership memory ownership = _ownerships[index];
+    if (ownership.addr == owner) {
+      return index;
     }
     revert("ERC721A: unable to get token of owner by index");
   }
@@ -1178,29 +1170,10 @@ contract ERC721A is
     view
     returns (TokenOwnership memory)
   {
-    uint256 curr = tokenId;
-
-    unchecked {
-        if (_startTokenId() <= curr && curr < currentIndex) {
-            TokenOwnership memory ownership = _ownerships[curr];
-            if (ownership.addr != address(0)) {
-                return ownership;
-            }
-
-            // Invariant:
-            // There will always be an ownership that has an address and is not burned
-            // before an ownership that does not have an address and is not burned.
-            // Hence, curr will not underflow.
-            while (true) {
-                curr--;
-                ownership = _ownerships[curr];
-                if (ownership.addr != address(0)) {
-                    return ownership;
-                }
-            }
-        }
+    TokenOwnership memory ownership = _ownerships[tokenId];
+    if (ownership.addr != address(0)) {
+        return ownership;
     }
-
     revert("ERC721A: unable to determine the owner of token");
   }
 
@@ -1256,7 +1229,8 @@ contract ERC721A is
    */
   function approve(address to, uint256 tokenId) public override {
     address owner = ERC721A.ownerOf(tokenId);
-    require(to != owner, "ERC721A: approval to current owner");
+
+    require(to != owner, "ERC721A: The given address is not the owner");
 
     require(
       _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
@@ -1397,11 +1371,17 @@ contract ERC721A is
 
         _beforeTokenTransfers(address(0), to, tokenId);
 
-        _addressData[to].balance  += 1;
+        AddressData memory addressData = _addressData[to];
+        _addressData[to] = AddressData(
+          addressData.balance + 1,
+          addressData.numberMinted + 1
+        );
         _ownerships[tokenId] = TokenOwnership(to, uint64(block.timestamp));
 
         emit Transfer(address(0), to, tokenId);
 
+
+        mintedTokenNumbers = mintedTokenNumbers + 1;
         _afterTokenTransfers(address(0), to, tokenId);
     }
 
@@ -1442,6 +1422,8 @@ contract ERC721A is
 
     // Clear approvals from the previous owner
     _approve(address(0), tokenId, prevOwnership.addr);
+
+    //TODO: Add the royality fee here 
 
     _addressData[from].balance -= 1;
     _addressData[to].balance += 1;
@@ -1661,7 +1643,7 @@ abstract contract AknetERC721A is
         string memory tokenSymbol
     ) ERC721A(tokenName, tokenSymbol, 1, 15000 ) {}
     using SafeMath for uint256;
-    uint8 public CONTRACT_VERSION = 2;
+    uint8 public CONTRACT_VERSION = 0;
     string public _baseTokenURI = "ipfs://QmbMfkUgQsxHQDVGL5WYZS7BzVJMZdgriPrSzntQriGpyq/";
 
     bool public mintingOpen = true;
@@ -1706,8 +1688,8 @@ abstract contract AknetERC721A is
         mintingOpen = false;
     }
 
-    function updateMintingFee(uint256 _fee) public onlyOwner {
-        mintingFee = _fee;
+    function updateMintingFee(uint256 _feeInWei) public onlyOwner {
+        mintingFee = _feeInWei;
     }
 
     function getPrice(uint256 _count) private view returns (uint256) {
@@ -1722,6 +1704,9 @@ abstract contract AknetERC721A is
          require(_newMaxMint >= 1, "Max mint must be at least 1");
          maxBatchSize = _newMaxMint;
      }
+
+
+
 
     
     function _baseURI() internal view virtual override returns (string memory) {
