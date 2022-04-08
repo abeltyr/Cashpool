@@ -15,11 +15,11 @@ module.exports = {
         rinkeby: {
             url: API_URL,
             accounts: [`0x${PRIVATE_KEY}`]
-        }
-    },
-    optimizer: {
-        enabled: true,
-        runs: 200
+        },
+        optimizer: {
+            enabled: true,
+            runs: 200
+        },
     },
     etherscan: {
         // Your API key for Etherscan
