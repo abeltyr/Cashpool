@@ -17,6 +17,10 @@ module.exports = {
             accounts: [`0x${PRIVATE_KEY}`]
         }
     },
+    optimizer: {
+        enabled: true,
+        runs: 200
+    },
     etherscan: {
         // Your API key for Etherscan
         // Obtain one at https://etherscan.io/

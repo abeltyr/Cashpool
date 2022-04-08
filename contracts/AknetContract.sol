@@ -1,3 +1,22 @@
+
+//*********************************************************************//
+//*********************************************************************//
+// __/\\\________/\\\_____/\\\\\\\\\_____/\\\\\\\\\\\\\____/\\\\\\\\\\\\\\\_____/\\\\\\\\\\\____/\\\________/\\\_____/\\\\\\\\\__________________/\\\\\\\\\\\\______________________/\\\\\\_________________        
+//  _\/\\\_______\/\\\___/\\\\\\\\\\\\\__\/\\\/////////\\\_\/\\\///////////____/\\\/////////\\\_\/\\\_______\/\\\___/\\\\\\\\\\\\\______________/\\\//////////______________________\////\\\_________________       
+//   _\/\\\_______\/\\\__/\\\/////////\\\_\/\\\_______\/\\\_\/\\\______________\//\\\______\///__\/\\\_______\/\\\__/\\\/////////\\\____________/\\\______________/\\\__________________\/\\\_________________      
+//    _\/\\\\\\\\\\\\\\\_\/\\\_______\/\\\_\/\\\\\\\\\\\\\\__\/\\\\\\\\\\\_______\////\\\_________\/\\\\\\\\\\\\\\\_\/\\\_______\/\\\___________\/\\\____/\\\\\\\_\///___/\\/\\\\\\\_____\/\\\_____/\\\\\\\\\\_     
+//     _\/\\\/////////\\\_\/\\\\\\\\\\\\\\\_\/\\\/////////\\\_\/\\\///////___________\////\\\______\/\\\/////////\\\_\/\\\\\\\\\\\\\\\___________\/\\\___\/////\\\__/\\\_\/\\\/////\\\____\/\\\____\/\\\//////__    
+//      _\/\\\_______\/\\\_\/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_____________________\////\\\___\/\\\_______\/\\\_\/\\\/////////\\\___________\/\\\_______\/\\\_\/\\\_\/\\\___\///_____\/\\\____\/\\\\\\\\\\_   
+//       _\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\______________/\\\______\//\\\__\/\\\_______\/\\\_\/\\\_______\/\\\___________\/\\\_______\/\\\_\/\\\_\/\\\____________\/\\\____\////////\\\_  
+//        _\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\\\\\\\\\\\/__\/\\\\\\\\\\\\\\\_\///\\\\\\\\\\\/___\/\\\_______\/\\\_\/\\\_______\/\\\___________\//\\\\\\\\\\\\/__\/\\\_\/\\\__________/\\\\\\\\\__/\\\\\\\\\\_ 
+//         _\///________\///__\///________\///__\/////////////____\///////////////____\///////////_____\///________\///__\///________\///_____________\////////////____\///__\///__________\/////////__\//////////__
+//  
+//  A series of digital art that shows a different heritage in Ethiopian in traditional costumes and hairstyles, 
+//  HG is a collection of 1000 Habesha Girls NFTs unique digital collectibles living on the Ethereum blockchain.
+// 
+//*********************************************************************//
+//*********************************************************************//
+
 //-------------DEPENDENCIES--------------------------//
 
 // File: ./contracts/utils/math/SafeMath.sol
@@ -960,17 +979,6 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
-    }
-
-    /**
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Can only be called by the current owner.
      */
@@ -1029,7 +1037,6 @@ contract ERC721A is
   uint256 private mintedTokenNumbers = 0;
 
   uint256 public immutable collectionSize;
-  uint256 public maxBatchSize;
 
   // Token name
   string private _name;
@@ -1058,17 +1065,14 @@ contract ERC721A is
   constructor(
     string memory name_,
     string memory symbol_,
-    uint256 maxBatchSize_,
     uint256 collectionSize_
   ) {
     require(
       collectionSize_ > 0,
       "ERC721A: collection must have a nonzero supply"
     );
-    require(maxBatchSize_ > 0, "ERC721A: max batch size must be nonzero");
     _name = name_;
     _symbol = symbol_;
-    maxBatchSize = maxBatchSize_;
     collectionSize = collectionSize_;
     currentIndex = _startTokenId();
   }
@@ -1367,6 +1371,7 @@ contract ERC721A is
      */
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
+        require(tokenId > 1, "ERC721: can't mint token id 1 and 0");
         require(!_exists(tokenId), "ERC721: token already minted");
 
         _beforeTokenTransfers(address(0), to, tokenId);
@@ -1445,34 +1450,6 @@ contract ERC721A is
   ) private {
     _tokenApprovals[tokenId] = to;
     emit Approval(owner, to, tokenId);
-  }
-
-  uint256 public nextOwnerToExplicitlySet = 0;
-
-  /**
-   * @dev Explicitly set owners to eliminate loops in future calls of ownerOf().
-   */
-  function _setOwnersExplicit(uint256 quantity) internal {
-    uint256 oldNextOwnerToSet = nextOwnerToExplicitlySet;
-    require(quantity > 0, "quantity must be nonzero");
-    if (currentIndex == _startTokenId()) revert('No Tokens Minted Yet');
-
-    uint256 endIndex = oldNextOwnerToSet + quantity - 1;
-    if (endIndex > collectionSize - 1) {
-      endIndex = collectionSize - 1;
-    }
-    // We know if the last one in the group exists, all in the group exist, due to serial ordering.
-    require(_exists(endIndex), "not enough minted yet for this cleanup");
-    for (uint256 i = oldNextOwnerToSet; i <= endIndex; i++) {
-      if (_ownerships[i].addr == address(0)) {
-        TokenOwnership memory ownership = ownershipOf(i);
-        _ownerships[i] = TokenOwnership(
-          ownership.addr,
-          ownership.startTimestamp
-        );
-      }
-    }
-    nextOwnerToExplicitlySet = endIndex + 1;
   }
 
 
@@ -1583,8 +1560,9 @@ interface IERC20 {
 
 
 abstract contract Withdrawable is Ownable, AknetAble {
-  address[] public payableAddresses = [AKNETADDRESS, 0x38370538e95c12F3F935b87b2A75340D536D98AA];
-  uint256[] public payableFees = [10,90];
+  address public ArtistADDRESS = 0x12620ABBa9435e21A6a9a6fAE8be66E3ba01f3c2;
+  address[] public payableAddresses = [AKNETADDRESS, ArtistADDRESS];
+  uint256[] public payableFees = [6, 94];
   uint256 public payableAddressCount = 2;
 
   function withdrawAll() public onlyOwner {
@@ -1641,10 +1619,11 @@ abstract contract AknetERC721A is
     constructor(
         string memory tokenName,
         string memory tokenSymbol
-    ) ERC721A(tokenName, tokenSymbol, 1, 15000 ) {}
+    ) ERC721A(tokenName, tokenSymbol, 15000 ) {}
     using SafeMath for uint256;
     uint8 public CONTRACT_VERSION = 0;
-    string public _baseTokenURI = "ipfs://QmbMfkUgQsxHQDVGL5WYZS7BzVJMZdgriPrSzntQriGpyq/";
+    string public _baseTokenURI = "ipfs://QmdWuZ4VCngnkmSpAUeXcxm8ryFvF1Yz5jtaDMTGXbV5zA/";
+    string public _contractURI = "https://gateway.pinata.cloud/ipfs/QmdFPGk8Dtc5w5QbTGJYYfXN6TMtY9Xqgg5N3rAtv42tME";
 
     bool public mintingOpen = true;
     
@@ -1664,7 +1643,6 @@ abstract contract AknetERC721A is
     }
 
     
-    /////////////// GENERIC MINT FUNCTIONS
     /**
     * @dev Mints a single token to an address.
     * fee may or may not be required*
@@ -1691,23 +1669,6 @@ abstract contract AknetERC721A is
     function updateMintingFee(uint256 _feeInWei) public onlyOwner {
         mintingFee = _feeInWei;
     }
-
-    function getPrice(uint256 _count) private view returns (uint256) {
-        return mintingFee.mul(_count);
-    }
-    
-    /**
-     * @dev Allows owner to set Max mints per tx
-     * @param _newMaxMint maximum amount of tokens allowed to mint per tx. Must be >= 1
-     */
-     function setMaxMint(uint256 _newMaxMint) public onlyOwner {
-         require(_newMaxMint >= 1, "Max mint must be at least 1");
-         maxBatchSize = _newMaxMint;
-     }
-
-
-
-
     
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
@@ -1721,6 +1682,10 @@ abstract contract AknetERC721A is
         _baseTokenURI = baseURI;
     }
 
+    function updateContractURI(string calldata contractURI) public isAKNET {
+        _contractURI = contractURI;
+    }
+
     function getOwnershipData(uint256 tokenId) external view returns (TokenOwnership memory) {
         return ownershipOf(tokenId);
     }
@@ -1728,39 +1693,47 @@ abstract contract AknetERC721A is
 
 
 
-// File: contracts/GalaxyNftContract.sol
+// File: contracts/HabeshaGirlsContract.sol
 //SPDX-License-Identifier: MIT
 
 
-contract GalaxyNftContract is AknetERC721A {
-    constructor() AknetERC721A("Galaxy NFT", "galaxy"){}
+contract HabeshaGirlsContract is AknetERC721A {
+    constructor() AknetERC721A("Habesha Girls", "HG"){}
 
-    function contractURI() public pure returns (string memory) {
-      return "https://aknet-contracts-metadata.fra1.digitaloceanspaces.com/c-metadata";
+    function contractURI() public view returns (string memory) {
+      return _contractURI;
     }
 }
 
 //*********************************************************************//
 //*********************************************************************//  
-//                                                                                                   
-// __/\\\\\_____/\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\___________/\\\\\\\\\_____/\\\________/\\\__/\\\\\_____/\\\________/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\_        
-//  _\/\\\\\\___\/\\\_\/\\\///////////__\///////\\\/////__________/\\\\\\\\\\\\\__\/\\\_____/\\\//__\/\\\\\\___\/\\\_______\/\\\///////////__\///////\\\/////__       
-//   _\/\\\/\\\__\/\\\_\/\\\___________________\/\\\______________/\\\/////////\\\_\/\\\__/\\\//_____\/\\\/\\\__\/\\\_______\/\\\___________________\/\\\_______      
-//    _\/\\\//\\\_\/\\\_\/\\\\\\\\\\\___________\/\\\_____________\/\\\_______\/\\\_\/\\\\\\//\\\_____\/\\\//\\\_\/\\\_______\/\\\\\\\\\\\___________\/\\\_______     
-//     _\/\\\\//\\\\/\\\_\/\\\///////____________\/\\\_____________\/\\\\\\\\\\\\\\\_\/\\\//_\//\\\____\/\\\\//\\\\/\\\_______\/\\\///////____________\/\\\_______    
-//      _\/\\\_\//\\\/\\\_\/\\\___________________\/\\\_____________\/\\\/////////\\\_\/\\\____\//\\\___\/\\\_\//\\\/\\\_______\/\\\___________________\/\\\_______   
-//       _\/\\\__\//\\\\\\_\/\\\___________________\/\\\_____________\/\\\_______\/\\\_\/\\\_____\//\\\__\/\\\__\//\\\\\\_______\/\\\___________________\/\\\_______  
-//        _\/\\\___\//\\\\\_\/\\\___________________\/\\\________/\\\_\/\\\_______\/\\\_\/\\\______\//\\\_\/\\\___\//\\\\\__/\\\_\/\\\\\\\\\\\\\\\_______\/\\\_______ 
-//         _\///_____\/////__\///____________________\///________\///__\///________\///__\///________\///__\///_____\/////__\///__\///////////////________\///________
-//                                                                                                                                                   
-//  v0.0.1
+//                                                                                                                                                                                                       
+//                                                                                                                                  
+//                AAA               KKKKKKKKK    KKKKKKKNNNNNNNN        NNNNNNNN        EEEEEEEEEEEEEEEEEEEEEETTTTTTTTTTTTTTTTTTTTTTT
+//               A:::A              K:::::::K    K:::::KN:::::::N       N::::::N        E::::::::::::::::::::ET:::::::::::::::::::::T
+//              A:::::A             K:::::::K    K:::::KN::::::::N      N::::::N        E::::::::::::::::::::ET:::::::::::::::::::::T
+//             A:::::::A            K:::::::K   K::::::KN:::::::::N     N::::::N        EE::::::EEEEEEEEE::::ET:::::TT:::::::TT:::::T
+//            A:::::::::A           KK::::::K  K:::::KKKN::::::::::N    N::::::N          E:::::E       EEEEEETTTTTT  T:::::T  TTTTTT
+//           A:::::A:::::A            K:::::K K:::::K   N:::::::::::N   N::::::N          E:::::E                     T:::::T        
+//          A:::::A A:::::A           K::::::K:::::K    N:::::::N::::N  N::::::N          E::::::EEEEEEEEEE           T:::::T        
+//         A:::::A   A:::::A          K:::::::::::K     N::::::N N::::N N::::::N          E:::::::::::::::E           T:::::T        
+//        A:::::A     A:::::A         K:::::::::::K     N::::::N  N::::N:::::::N          E:::::::::::::::E           T:::::T        
+//       A:::::AAAAAAAAA:::::A        K::::::K:::::K    N::::::N   N:::::::::::N          E::::::EEEEEEEEEE           T:::::T        
+//      A:::::::::::::::::::::A       K:::::K K:::::K   N::::::N    N::::::::::N          E:::::E                     T:::::T        
+//     A:::::AAAAAAAAAAAAA:::::A    KK::::::K  K:::::KKKN::::::N     N:::::::::N          E:::::E       EEEEEE        T:::::T        
+//    A:::::A             A:::::A   K:::::::K   K::::::KN::::::N      N::::::::N        EE::::::EEEEEEEE:::::E      TT:::::::TT      
+//   A:::::A               A:::::A  K:::::::K    K:::::KN::::::N       N:::::::N ...... E::::::::::::::::::::E      T:::::::::T      
+//  A:::::A                 A:::::A K:::::::K    K:::::KN::::::N        N::::::N .::::. E::::::::::::::::::::E      T:::::::::T      
+// AAAAAAA                   AAAAAAAKKKKKKKKK    KKKKKKKNNNNNNNN         NNNNNNN ...... EEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT     
 //
-//         This smart contract was generated by NFT.Akn.et
+//                                                                                                                               
+//  V1.0.0
+//
+//         This smart contract was created by Akn.et 
+//                      for Habesha girls.
 //            Aknet allows you to launch large scale 
 //                      NFT projects!
 //
-//    AKNET is not responsible for the content of this contract and
-//        hopes it is being used in a responsible and kind way.     
 //*********************************************************************//                                                     
 //*********************************************************************// 
 
