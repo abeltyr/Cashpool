@@ -1211,7 +1211,8 @@ contract ERC721A is
    */
   function approve(address to, uint256 tokenId) public override {
     address owner = ERC721A.ownerOf(tokenId);
-    require(to != owner, "ERC721A: approval to current owner");
+
+    require(to != owner, "ERC721A: The given address is not the owner");
 
     require(
       _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
@@ -1493,8 +1494,19 @@ abstract contract AknetAble {
 
 
 interface IERC20 {
-  function transfer(address _to, uint256 _amount) external returns (bool);
-  function balanceOf(address account) external view returns (uint256);
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
 }
 
 
@@ -1562,7 +1574,7 @@ abstract contract AknetERC721A is
     ) ERC721A(tokenName, tokenSymbol, 1000 ) {}
     using SafeMath for uint256;
     uint8 public CONTRACT_VERSION = 1;
-    string public _baseTokenURI = "ipfs://QmdWuZ4VCngnkmSpAUeXcxm8ryFvF1Yz5jtaDMTGXbV5zA/"; 
+    string public _baseTokenURI = "ipfs://QmdWuZ4VCngnkmSpAUeXcxm8ryFvF1Yz5jtaDMTGXbV5zA/";
 
     bool public mintingOpen = true;
     
@@ -1570,6 +1582,7 @@ abstract contract AknetERC721A is
     
 
     
+    /////////////// Admin Mint Functions
     /**
     * @dev Mints a token to an address with a tokenURI.
     * This is owner only and allows a fee-free drop
@@ -1581,6 +1594,7 @@ abstract contract AknetERC721A is
     }
 
     
+    /////////////// GENERIC MINT FUNCTIONS
     /**
     * @dev Mints a single token to an address.
     * fee may or may not be required*
@@ -1607,8 +1621,16 @@ abstract contract AknetERC721A is
     function updateMintingFee(uint256 _feeInWei) public onlyOwner {
         mintingFee = _feeInWei;
     }
+
+    function getPrice(uint256 _count) private view returns (uint256) {
+        return mintingFee.mul(_count);
+    }
     
     function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function baseTokenURI() public view returns (string memory) {
         return _baseTokenURI;
     }
 
