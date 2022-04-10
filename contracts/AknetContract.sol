@@ -1,16 +1,12 @@
 
 //*********************************************************************//
 //*********************************************************************//
-// __/\\\________/\\\_____/\\\\\\\\\_____/\\\\\\\\\\\\\____/\\\\\\\\\\\\\\\_____/\\\\\\\\\\\____/\\\________/\\\_____/\\\\\\\\\__________________/\\\\\\\\\\\\______________________/\\\\\\_________________        
-//  _\/\\\_______\/\\\___/\\\\\\\\\\\\\__\/\\\/////////\\\_\/\\\///////////____/\\\/////////\\\_\/\\\_______\/\\\___/\\\\\\\\\\\\\______________/\\\//////////______________________\////\\\_________________       
-//   _\/\\\_______\/\\\__/\\\/////////\\\_\/\\\_______\/\\\_\/\\\______________\//\\\______\///__\/\\\_______\/\\\__/\\\/////////\\\____________/\\\______________/\\\__________________\/\\\_________________      
-//    _\/\\\\\\\\\\\\\\\_\/\\\_______\/\\\_\/\\\\\\\\\\\\\\__\/\\\\\\\\\\\_______\////\\\_________\/\\\\\\\\\\\\\\\_\/\\\_______\/\\\___________\/\\\____/\\\\\\\_\///___/\\/\\\\\\\_____\/\\\_____/\\\\\\\\\\_     
-//     _\/\\\/////////\\\_\/\\\\\\\\\\\\\\\_\/\\\/////////\\\_\/\\\///////___________\////\\\______\/\\\/////////\\\_\/\\\\\\\\\\\\\\\___________\/\\\___\/////\\\__/\\\_\/\\\/////\\\____\/\\\____\/\\\//////__    
-//      _\/\\\_______\/\\\_\/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_____________________\////\\\___\/\\\_______\/\\\_\/\\\/////////\\\___________\/\\\_______\/\\\_\/\\\_\/\\\___\///_____\/\\\____\/\\\\\\\\\\_   
-//       _\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\______________/\\\______\//\\\__\/\\\_______\/\\\_\/\\\_______\/\\\___________\/\\\_______\/\\\_\/\\\_\/\\\____________\/\\\____\////////\\\_  
-//        _\/\\\_______\/\\\_\/\\\_______\/\\\_\/\\\\\\\\\\\\\/__\/\\\\\\\\\\\\\\\_\///\\\\\\\\\\\/___\/\\\_______\/\\\_\/\\\_______\/\\\___________\//\\\\\\\\\\\\/__\/\\\_\/\\\__________/\\\\\\\\\__/\\\\\\\\\\_ 
-//         _\///________\///__\///________\///__\/////////////____\///////////////____\///////////_____\///________\///__\///________\///_____________\////////////____\///__\///__________\/////////__\//////////__
-//  
+//     __  __      __              __                   _      __    
+//    / / / /___ _/ /_  ___  _____/ /_  ____ _   ____ _(_)____/ /____
+//   / /_/ / __ `/ __ \/ _ \/ ___/ __ \/ __ `/  / __ `/ / ___/ / ___/
+//  / __  / /_/ / /_/ /  __(__  ) / / / /_/ /  / /_/ / / /  / (__  ) 
+// /_/ /_/\__,_/_.___/\___/____/_/ /_/\__,_/   \__, /_/_/  /_/____/  
+//                                            /____/                 
 //  A series of digital art that shows a different heritage in Ethiopian in traditional costumes and hairstyles, 
 //  HG is a collection of 1000 Habesha Girls NFTs unique digital collectibles living on the Ethereum blockchain.
 // 
@@ -1032,7 +1028,6 @@ contract ERC721A is
     uint128 numberMinted;
   }
 
-  uint256 private currentIndex;
 
   uint256 private mintedTokenNumbers = 0;
 
@@ -1074,34 +1069,20 @@ contract ERC721A is
     _name = name_;
     _symbol = symbol_;
     collectionSize = collectionSize_;
-    currentIndex = _startTokenId();
   }
 
-  /**
-  * To change the starting tokenId, please override this function.
-  */
-  function _startTokenId() internal view virtual returns (uint256) {
-    return 1;
-  }
-
+ 
   /**
    * @dev See {IERC721Enumerable-totalSupply}.
    */
-  function totalSupply() public view override returns (uint256) {
-    return _totalMinted();
-  }
-
-  function currentTokenId() public view returns (uint256) {
-    return _totalMinted();
-  }
 
   /**
   * Returns the total amount of tokens minted in the contract.
   */
-  function _totalMinted() internal view returns (uint256) {
+  function totalSupply() public view override returns (uint256) {
     return mintedTokenNumbers;
   }
-
+  
   /**
    * @dev See {IERC721Enumerable-tokenByIndex}.
    */
@@ -1113,9 +1094,6 @@ contract ERC721A is
     revert("ERC721A: Token not minted");
   }
 
-  function tokenByAddress(uint256 index) public view returns (address) {
-     return _ownerships[index].addr ;
-  }
 
   /**
    * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
@@ -1233,8 +1211,7 @@ contract ERC721A is
    */
   function approve(address to, uint256 tokenId) public override {
     address owner = ERC721A.ownerOf(tokenId);
-
-    require(to != owner, "ERC721A: The given address is not the owner");
+    require(to != owner, "ERC721A: approval to current owner");
 
     require(
       _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
@@ -1327,68 +1304,43 @@ contract ERC721A is
   }
 
 
-    /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _safeMint(address to, uint256 tokenId) internal virtual {
-        _safeMint(to, tokenId, "");
-    }
 
-    /**
-     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
-     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
-     */
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory _data
-    ) internal virtual {
-        _mint(to, tokenId);
-        require(
-            _checkOnERC721Received(address(0), to, tokenId, _data),
-            "ERC721: transfer to non ERC721Receiver implementer"
-        );
-    }
+  /**
+    * @dev Mints `tokenId` and transfers it to `to`.
+    *
+    *
+    * Requirements:
+    *
+    * - `tokenId` must not exist.
+    * - `to` cannot be the zero address.
+    *
+    * Emits a {Transfer} event.
+    */
+  function _mint(address to, uint256 tokenId) internal virtual {
+      require(to != address(0), "ERC721: mint to the zero address");
+      require(tokenId > 1, "ERC721: can't mint token id 1 and 0");
+      require(!_exists(tokenId), "ERC721: token already minted");
 
-    /**
-     * @dev Mints `tokenId` and transfers it to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - `to` cannot be the zero address.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _mint(address to, uint256 tokenId) internal virtual {
-        require(to != address(0), "ERC721: mint to the zero address");
-        require(tokenId > 1, "ERC721: can't mint token id 1 and 0");
-        require(!_exists(tokenId), "ERC721: token already minted");
+      _beforeTokenTransfers(address(0), to, tokenId);
 
-        _beforeTokenTransfers(address(0), to, tokenId);
+      AddressData memory addressData = _addressData[to];
+      _addressData[to] = AddressData(
+        addressData.balance + 1,
+        addressData.numberMinted + 1
+      );
+      _ownerships[tokenId] = TokenOwnership(to, uint64(block.timestamp));
 
-        AddressData memory addressData = _addressData[to];
-        _addressData[to] = AddressData(
-          addressData.balance + 1,
-          addressData.numberMinted + 1
-        );
-        _ownerships[tokenId] = TokenOwnership(to, uint64(block.timestamp));
-
-        emit Transfer(address(0), to, tokenId);
+      emit Transfer(address(0), to, tokenId);
 
 
-        mintedTokenNumbers = mintedTokenNumbers + 1;
-        _afterTokenTransfers(address(0), to, tokenId);
-    }
+      mintedTokenNumbers = mintedTokenNumbers + 1;
+      _afterTokenTransfers(address(0), to, tokenId);
+
+      require(
+          _checkOnERC721Received(address(0), to, tokenId, ""),
+          "ERC721: transfer to non ERC721Receiver implementer"
+      );
+  }
 
 
   /**
@@ -1428,8 +1380,6 @@ contract ERC721A is
     // Clear approvals from the previous owner
     _approve(address(0), tokenId, prevOwnership.addr);
 
-    //TODO: Add the royality fee here 
-
     _addressData[from].balance -= 1;
     _addressData[to].balance += 1;
     _ownerships[tokenId] = TokenOwnership(to, uint64(block.timestamp));
@@ -1453,16 +1403,17 @@ contract ERC721A is
   }
 
 
-/**
-    * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
-    * The call is not executed if the target address is not a contract.
-    *
-    * @param from address representing the previous owner of the given token ID
-    * @param to target address that will receive the tokens
-    * @param tokenId uint256 ID of the token to be transferred
-    * @param _data bytes optional data to send along with the call
-    * @return bool whether the call correctly returned the expected magic value
-    */
+
+  /**
+   * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
+   * The call is not executed if the target address is not a contract.
+   *
+   * @param from address representing the previous owner of the given token ID
+   * @param to target address that will receive the tokens
+   * @param tokenId uint256 ID of the token to be transferred
+   * @param _data bytes optional data to send along with the call
+   * @return bool whether the call correctly returned the expected magic value
+   */
   function _checkOnERC721Received(
     address from,
     address to,
@@ -1542,19 +1493,8 @@ abstract contract AknetAble {
 
 
 interface IERC20 {
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 amount) external returns (bool);
+  function transfer(address _to, uint256 _amount) external returns (bool);
+  function balanceOf(address account) external view returns (uint256);
 }
 
 
@@ -1619,11 +1559,10 @@ abstract contract AknetERC721A is
     constructor(
         string memory tokenName,
         string memory tokenSymbol
-    ) ERC721A(tokenName, tokenSymbol, 15000 ) {}
+    ) ERC721A(tokenName, tokenSymbol, 1000 ) {}
     using SafeMath for uint256;
-    uint8 public CONTRACT_VERSION = 0;
-    string public _baseTokenURI = "ipfs://QmdWuZ4VCngnkmSpAUeXcxm8ryFvF1Yz5jtaDMTGXbV5zA/";
-    string public _contractURI = "https://gateway.pinata.cloud/ipfs/QmdFPGk8Dtc5w5QbTGJYYfXN6TMtY9Xqgg5N3rAtv42tME";
+    uint8 public CONTRACT_VERSION = 1;
+    string public _baseTokenURI = "ipfs://QmdWuZ4VCngnkmSpAUeXcxm8ryFvF1Yz5jtaDMTGXbV5zA/"; 
 
     bool public mintingOpen = true;
     
@@ -1631,7 +1570,6 @@ abstract contract AknetERC721A is
     
 
     
-    /////////////// Admin Mint Functions
     /**
     * @dev Mints a token to an address with a tokenURI.
     * This is owner only and allows a fee-free drop
@@ -1639,7 +1577,7 @@ abstract contract AknetERC721A is
     */
     function mintToAdmin(address _to, uint256 tokenId) public onlyOwner {
         require(tokenId <= collectionSize, "Cannot mint over supply cap");
-        _safeMint(_to, tokenId);
+        _mint(_to, tokenId);
     }
 
     
@@ -1654,7 +1592,7 @@ abstract contract AknetERC721A is
         
         require(msg.value >= mintingFee, "Value needs to be equal or higher the mint fee!");
         
-        _safeMint(_to, tokenId);
+        _mint(_to, tokenId);
         
     }
 
@@ -1674,16 +1612,8 @@ abstract contract AknetERC721A is
         return _baseTokenURI;
     }
 
-    function baseTokenURI() public view returns (string memory) {
-        return _baseTokenURI;
-    }
-
     function setBaseURI(string calldata baseURI) external onlyOwner {
         _baseTokenURI = baseURI;
-    }
-
-    function updateContractURI(string calldata contractURI) public isAKNET {
-        _contractURI = contractURI;
     }
 
     function getOwnershipData(uint256 tokenId) external view returns (TokenOwnership memory) {
@@ -1700,8 +1630,8 @@ abstract contract AknetERC721A is
 contract HabeshaGirlsContract is AknetERC721A {
     constructor() AknetERC721A("Habesha Girls", "HG"){}
 
-    function contractURI() public view returns (string memory) {
-      return _contractURI;
+    function contractURI() public pure returns (string memory) {
+      return "https://aknet-habesha-girls.s3.amazonaws.com/metadata.json";
     }
 }
 
