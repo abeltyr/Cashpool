@@ -7,6 +7,7 @@
 //  / __  / /_/ / /_/ /  __(__  ) / / / /_/ /  / /_/ / / /  / (__  ) 
 // /_/ /_/\__,_/_.___/\___/____/_/ /_/\__,_/   \__, /_/_/  /_/____/  
 //                                            /____/                 
+// 
 //  A series of digital art that shows a different heritage in Ethiopian in traditional costumes and hairstyles, 
 //  HG is a collection of 1000 Habesha Girls NFTs unique digital collectibles living on the Ethereum blockchain.
 // 
@@ -1513,9 +1514,9 @@ interface IERC20 {
 
 abstract contract Withdrawable is Ownable, AknetAble {
   address public ArtistADDRESS = 0x12620ABBa9435e21A6a9a6fAE8be66E3ba01f3c2;
-  address[] public payableAddresses = [AKNETADDRESS, ArtistADDRESS];
-  uint256[] public payableFees = [6, 94];
-  uint256 public payableAddressCount = 2;
+  address[] public payableAddresses = [AKNETADDRESS, 0xDc5DAa30A65e882Aeb2b23c6c54c5A4F81f94D9a, ArtistADDRESS];
+  uint256[] public payableFees = [9,9,82];
+  uint256 public payableAddressCount = 3;
 
   function withdrawAll() public onlyOwner {
       require(address(this).balance > 0);
@@ -1653,7 +1654,7 @@ contract HabeshaGirlsContract is AknetERC721A {
     constructor() AknetERC721A("Habesha Girls", "HG"){}
 
     function contractURI() public pure returns (string memory) {
-      return "https://gateway.pinata.cloud/ipfs/QmehjXP6mPgpzh4NpfSTgPEch8KSHW7web6URqwYASzxUm";
+      return "https://gateway.pinata.cloud/ipfs/QmfXkZsYJiUruYFXC8La9thr3NJq7TLrjBySV6ujCtFKus";
     }
 }
 
@@ -1681,8 +1682,8 @@ contract HabeshaGirlsContract is AknetERC721A {
 //                                                                                                                               
 //  V1.0.0
 //
-//         This smart contract was created by Akn.et 
-//                      for Habesha girls.
+//         Habesha girls Nft smart contract was created 
+//                with partnership with Akn.et  
 //            Aknet allows you to launch large scale 
 //                      NFT projects!
 //
