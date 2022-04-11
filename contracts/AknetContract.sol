@@ -1653,7 +1653,7 @@ contract HabeshaGirlsContract is AknetERC721A {
     constructor() AknetERC721A("Habesha Girls", "HG"){}
 
     function contractURI() public pure returns (string memory) {
-      return "https://aknet-habesha-girls.s3.amazonaws.com/metadata.json";
+      return "https://gateway.pinata.cloud/ipfs/QmehjXP6mPgpzh4NpfSTgPEch8KSHW7web6URqwYASzxUm";
     }
 }
 
