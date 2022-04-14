@@ -1,11 +1,11 @@
 const main = async() => {
-    const GalaxyNftContract = await ethers.getContractFactory("GalaxyNftContract");
+    const CashPool1Contract = await ethers.getContractFactory("CashPool1Contract");
 
-    const Galaxy_NftContract = await GalaxyNftContract.deploy();
+    const CashPool1_Contract = await CashPool1Contract.deploy();
 
-    await Galaxy_NftContract.deployed();
+    await CashPool1_Contract.deployed();
 
-    console.log("My NFT deployed to:", Galaxy_NftContract.address);
+    console.log("My NFT deployed to:", CashPool1_Contract.address);
 
 
 }
