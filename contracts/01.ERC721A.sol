@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 import "./libraries/02.Address.sol";
 import "./libraries/03.IERC721Receiver.sol";
@@ -63,9 +63,13 @@ contract ERC721A is
   string private _symbol;
   
 
-  address public winner1 = address(0);
-  address public winner2 = address(0);
-  address public winner3 = address(0);
+  struct WinnerData {
+    address _address;
+    uint256 winnerPostion;
+    bool isEntriy;
+  }
+
+  mapping(uint256 => WinnerData) public winners;
 
   // Mapping from token ID to ownership details
   // An empty struct value does not necessarily mean the token is unowned. See ownershipOf implementation for details.
@@ -335,19 +339,20 @@ contract ERC721A is
   }
 
   function createRandom(uint256 number) internal view returns(uint256){
-        return uint256(blockhash(block.number-1)) % number;
-    }
-  function _setWinner() internal returns (bool) {
-    require(endDate > block.timestamp, "ERC721: mint to the zero address");
-    bool winnerData = (_msgSender() == winner1 && _msgSender() == winner2 && _msgSender() == winner3);
-    require(winnerData, "ERC721A: Winners Already selected");
-    uint256 randomNumber1 = createRandom(mintedTokenNumbers);
-    uint256 randomNumber2 = createRandom(mintedTokenNumbers);
-    uint256 randomNumber3 = createRandom(mintedTokenNumbers);
+      return uint256(keccak256(abi.encodePacked(block.timestamp,block.difficulty, msg.sender))) % number;
+  }
+  function setWinner() public returns (bool) {
+    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
+    
+    require(!winners[0].isEntriy || address(0) == winners[0]._address, "ERC721A: 3rd place  Already selected"); 
+    winners[0].winnerPostion = createRandom(50);
+    
+    require(!winners[1].isEntriy || address(0) == winners[1]._address, "ERC721A: 3rd place  Already selected"); 
+    winners[1].winnerPostion = createRandom(50);
 
-    winner1 = _ownerships[_tokenData[randomNumber1].tokenId]._address;
-    winner2 = _ownerships[_tokenData[randomNumber2].tokenId]._address;
-    winner3 = _ownerships[_tokenData[randomNumber3].tokenId]._address;
+    require(!winners[2].isEntriy || address(0) == winners[2]._address, "ERC721A: 3rd place  Already selected"); 
+    winners[2].winnerPostion = createRandom(50);
+
 
 
     return true;

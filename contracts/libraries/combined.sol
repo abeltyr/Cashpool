@@ -4,7 +4,7 @@
 // File: ./contracts/utils/math/SafeMath.sol
 // OpenZeppelin Contracts v4.4.1 (utils/math/SafeMath.sol)
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 // CAUTION
 // This version of SafeMath should only be used with Solidity 0.8 or later,

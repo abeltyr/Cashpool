@@ -6,7 +6,7 @@
 import "./06.IERC721.sol";
 
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension

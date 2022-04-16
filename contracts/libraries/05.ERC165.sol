@@ -6,7 +6,7 @@ import "./04.IERC165.sol";
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 
 /**

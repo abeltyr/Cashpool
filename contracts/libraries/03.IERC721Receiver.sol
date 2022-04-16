@@ -3,7 +3,7 @@
 // File: ./contracts/token/ERC721/IERC721Receiver.sol
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/IERC721Receiver.sol)
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 
 /**
