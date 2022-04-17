@@ -338,25 +338,6 @@ contract ERC721A is
     return _ownerships[tokenId]._address != address(0);
   }
 
-  function createRandom(uint256 number) internal view returns(uint256){
-      return uint256(keccak256(abi.encodePacked(block.timestamp,block.difficulty, msg.sender))) % number;
-  }
-  function setWinner() public returns (bool) {
-    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
-    
-    require(!winners[0].isEntriy || address(0) == winners[0]._address, "ERC721A: 3rd place  Already selected"); 
-    winners[0].winnerPostion = createRandom(50);
-    
-    require(!winners[1].isEntriy || address(0) == winners[1]._address, "ERC721A: 3rd place  Already selected"); 
-    winners[1].winnerPostion = createRandom(50);
-
-    require(!winners[2].isEntriy || address(0) == winners[2]._address, "ERC721A: 3rd place  Already selected"); 
-    winners[2].winnerPostion = createRandom(50);
-
-
-
-    return true;
-  }
 
 
 
@@ -384,12 +365,11 @@ contract ERC721A is
         addressData.numberMinted + 1
       );
       _ownerships[tokenId] = TokenOwnership(to, uint64(block.timestamp));
-      _tokenData[mintedTokenNumbers] = BoughtTokenData(tokenId);
-
+      
       emit Transfer(address(0), to, tokenId);
 
-
       mintedTokenNumbers = mintedTokenNumbers + 1;
+      _tokenData[mintedTokenNumbers] = BoughtTokenData(tokenId);
       _afterTokenTransfers(address(0), to, tokenId);
 
       require(

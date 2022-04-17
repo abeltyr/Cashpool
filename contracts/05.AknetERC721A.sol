@@ -62,9 +62,70 @@ abstract contract AknetERC721A is
         mintingOpen = true;
     }
 
-    function setWinners() public onlyOwner returns (bool){
-        return _setWinner();
+ 
+  function createRandom(uint256 number) public view returns(uint256){
+      return uint256(keccak256(abi.encodePacked(block.timestamp,block.difficulty, msg.sender))) % number;
+  }
+
+  function setWinner() public onlyOwner returns (bool) {
+    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
+    
+    require(!winners[2].isEntriy || address(0) == winners[2]._address, "ERC721A: 1rd place  Already selected"); 
+    require(!winners[1].isEntriy || address(0) == winners[1]._address, "ERC721A: 2rd place  Already selected"); 
+    require(!winners[0].isEntriy || address(0) == winners[0]._address, "ERC721A: 3rd place  Already selected"); 
+    
+    uint256 random1 = createRandom(50);
+    uint256 random2 = createRandom(50);
+    while(random1 == random2){
+        random2 = createRandom(50);
+        if(random1 != random2) break;
     }
+
+    uint256 random3 = createRandom(50);
+    while(random1 == random3 || random2 == random3){
+        random3 = createRandom(50);
+        if(random1 != random3 && random2 != random3) break;
+    }
+
+    winners[2].winnerPostion = random1;
+    winners[1].winnerPostion = random2;
+    winners[0].winnerPostion = random3;
+    return true;
+  }
+
+
+  function firstPlaceWinner() public onlyOwner returns (bool) {
+    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
+    require(!winners[2].isEntriy || address(0) == winners[2]._address, "ERC721A: 1rd place  Already selected"); 
+    uint256 random = createRandom(50);
+    if(winners[0].winnerPostion == random || winners[1].winnerPostion == random) return false;
+    winners[2].winnerPostion = random;
+    return true;
+  }
+
+
+  function secondPlaceWinner() public onlyOwner returns (bool) {
+    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
+    require(!winners[1].isEntriy || address(0) == winners[1]._address, "ERC721A: 2rd place  Already selected"); 
+    
+    uint256 random = createRandom(50);
+    if(winners[0].winnerPostion == random || winners[2].winnerPostion == random) return false;
+    winners[1].winnerPostion = random;
+    return true;
+  }
+
+
+
+  function thirdPlaceWinner() public onlyOwner returns (bool) {
+    require(endDate <= block.timestamp, "ERC721A: Date has not passed");
+    require(!winners[0].isEntriy || address(0) == winners[0]._address, "ERC721A: 3rd place  Already selected"); 
+    
+    uint256 random = createRandom(50);
+    if(winners[1].winnerPostion == random || winners[2].winnerPostion == random) return false;
+    winners[0].winnerPostion = random;
+    return true;
+  }
+
 
     function stopMinting() public onlyOwner {
         mintingOpen = false;
